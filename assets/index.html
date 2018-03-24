@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
+	<title>FAKit Desktop</title>
+	<script src="https://unpkg.com/vue"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
+	<script src="lib/bip32.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="lib/semantic/semantic.min.css">
+	<script
+	  src="https://code.jquery.com/jquery-3.1.1.min.js"
+	  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+	  crossorigin="anonymous"></script>
+	<script src="lib/semantic/semantic.min.js"></script>
+	
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			width: 100%;
+			margin: 0px;
+		}
+		#app {
+			width: 800px;
+			height: 100%;
+			width: 100%;
+			display: flex;
+			margin: auto;
+			flex-direction: column;
+		}
+		.main {
+			flex: 1 0 auto;
+		}
+		.phrase-set {
+			max-width: 900px;
+			margin: auto;
+		}
+		.bip32-labled{ height: 26px; margin: 10px auto 10px auto; }
+		#footer {
+			margin: auto;
+		}
+		.main-items { 
+			flex: 1 0 auto;
+			max-width: 500px;
+			text-align: left;
+			margin:auto;
+			padding:auto;
+		}
+		.main-items * {
+			text-align: left;
+		}
+	</style>
+	<style>.wallet-input input[placeholder]{text-align:center;}</style>
+	
+	<script src="App/ImportKey.js"></script>
+</head>
+<body>
+	<div id="app" class="ui middle aligned center aligned grid">
+		<!-- <div class="row" style="height:73px;">
+			<div class="column">
+				<h2 class="ui center aligned icon header">
+
+				</h2>
+			</div>
+		</div> -->
+		
+		<div class="row main-items" v-if="progress">
+			<div class="column">
+					<div class="ui items">
+						<div class="item">
+							<div class="image">
+								<img :src="'/img/'+address">
+							</div>
+							<div class="bottom aligned content">
+								<h1 class="header" style="font-size:4em;">{{ tweenedNumber | formatFAK }}<span style="font-size:0.9em;">&#x1d641;</span></h1>
+								<div class="meta">
+									{{ address }}
+								</div>
+								<div class="description">
+									<p></p>
+								</div>
+								<div class="extra">
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="ui cards" v-if="progress == 100">
+					  <div class="card" style="width:100%;min-width:375px;">
+							<div class="ui bottom attached input">
+								<input placeholder="tRXyVU2iqXe1wK3ynahqaPCBz3mWW6c1JH" id="address" type="text">
+							</div>
+							<div class="ui right labeled attached input">
+								<label for="amount" class="ui label">&#x1d641;</label>
+								<input placeholder="Amount" id="amount" type="text">
+								<div class="ui basic label">+ 0.001/KB</div>
+							</div>
+							
+							<div class="ui blue bottom attached button" @click="sendfak">
+								<i class="paper plane icon"></i>
+								Send
+							</div>
+						</div>
+					</div>
+					
+					
+			</div>
+		</div>
+		
+		<div class="row main" v-if="progress == 0">
+			<div class="column">
+				<div class="row phrase-set">
+					<import-key></import-key>
+				</div>
+			</div>
+		</div>
+
+		<div class="row" style="height:73px;">
+			<div class="column footer">
+				<div class="ui indicating progress" id="sync-progress" v-if="progress && progress < 100">
+					<div class="bar"><div class="progress"></div></div>
+					<div class="label"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	
+	<script>
+		const coin = 100000000;
+		var app = new Vue({
+			el: '#app',
+			data: {
+				message: 'FAKit',
+				progress: 0,
+				tableData: [],
+				isCollapse: true,
+				balance:0,
+				tweenedNumber: 0,
+				address: "tLhFvUQcDV6NA8up9E7uNHoZjjrixpNQiP"
+			},
+			watch: {
+				progress: function(newValue) {
+					$('#sync-progress').progress({percent:newValue})
+				},
+				balance: function(newValue) {
+					TweenLite.to(this.$data, 0.5, { tweenedNumber: newValue });
+				}
+			},
+			methods: {
+				nextPlease: function (event) {
+					document.getElementById('input2').focus();
+				},
+				formatFAK: function (row, column) {
+					const factor = 1000;
+					const f = Math.round(row.value/(coin/factor));
+					return f/factor + "\uD835\uDE41";
+				},
+				sendfak: function() {
+					console.log(document.getElementById('amount').value);
+					window.external.invoke(JSON.stringify({
+						fn: 'send',
+						data: {
+							address: document.getElementById('address').value,
+							amount:  Math.round(document.getElementById('amount').value * coin)
+						}
+					}));
+					document.getElementById('address').value = "";
+					document.getElementById('amount').value = "";
+				}
+			},
+			filters: {
+				formatFAK: function (b) {
+					const factor = 1000;
+					const f = Math.round(b/(coin/factor));
+					return f/factor;
+				}
+			}
+		})
+	</script>
+</body>
+</html>
