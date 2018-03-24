@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FAKit Desktop</title>
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<script src="https://unpkg.com/vue"></script>
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			width: 100%;
+			margin: 0px;
+		}
+		#app {
+			width: 100%;
+			height: 100%;
+			display: flex;
+		}
+		.main {
+			justify-content: center;
+			text-align: center;
+		}
+		.paper > * {padding: 5px 5px 0px 5px;}
+		input[placeholder] {
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<el-container id="app">
+		<el-main class="main">
+		<transition name="el-fade-in-linear">
+			<form v-if="progress < 0">
+				<p>Enter Your paper wallet key phrase below to continue.</p>
+				<el-row class="paper">
+					<el-col :span="6"><el-input placeholder="1" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="2" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="3" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="4" v-model="input9"></el-input></el-col>
+				</el-row>
+				<el-row class="paper">
+					<el-col :span="6"><el-input placeholder="5" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="6" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="7" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="8" v-model="input9"></el-input></el-col>
+				</el-row>
+				<el-row class="paper">
+					<el-col :span="6"><el-input placeholder="9" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="10" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="11" v-model="input9"></el-input></el-col>
+					<el-col :span="6"><el-input placeholder="12" v-model="input9"></el-input></el-col>
+				</el-row>
+				<el-row><el-button type="text" @click="connect">Connect</el-button></el-row>
+			</form>
+				<div>
+					<h1 style="font-size:4em;">{{ tweenedNumber | formatFAK }}<span style="font-size:0.9em;">&#x1d641;</span></h3>
+					<el-progress
+						type="circle"
+						v-bind:percentage="progress"
+						v-if="progress && progress < 100">
+					</el-progress>
+				</div>
+			</transition>
+			<el-footer>
+			<transition name="el-fade-in-linear">
+					<template v-if="tableData.length">
+						<el-table
+							:data="tableData"
+							empty-text="No Transactions">
+							<el-table-column
+								prop="value"
+								label="Value"
+								:formatter="formatFAK">
+							</el-table-column>
+							<el-table-column
+								prop="version"
+								label="Version">
+							</el-table-column>
+							<el-table-column
+								prop="index"
+								label="Index">
+							</el-table-column>
+							<el-table-column
+								prop="lock_time"
+								label="Lock Time">
+							</el-table-column>
+							<el-table-column
+								prop="hash"
+								label="Hash">
+							</el-table-column>
+						</el-table>
+					</template>
+				</transition>
+			</el-footer>
+		</el-main>
+	</el-container>
+
+	<script>
+		const coin = 100000000;
+		var app = new Vue({
+			el: '#app',
+			data: {
+				message: 'FAKit',
+				progress: -1,
+				tableData: [],
+				isCollapse: true,
+				balance:0,
+				tweenedNumber: 0
+			},
+			watch: {
+				balance: function(newValue) {
+					TweenLite.to(this.$data, 0.5, { tweenedNumber: newValue });
+				}
+			},
+			methods: {
+				formatFAK: function (row, column) {
+					const factor = 1000;
+					const f = Math.round(row.value/(coin/factor));
+					return f/factor + "\uD835\uDE41";
+				},
+				connect: function() {
+					this.progress = 0;
+					var words = [];
+					document.querySelectorAll(".paper input").forEach((e) => {
+						words.push(e.value);
+					});
+					setTimeout(() => window.external.invoke(words.join(' ')), 1000)
+				}
+			},
+			filters: {
+				formatFAK: function (b) {
+					const factor = 1000;
+					const f = Math.round(b/(coin/factor));
+					return f/factor;
+				}
+			}
+		})
+	</script>
+</body>
+</html>

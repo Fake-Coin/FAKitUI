@@ -1,0 +1,4 @@
+[submodule "vendor/fakco.in/FAKitCore"]
+	path = vendor/fakco.in/FAKitCore
+	url = https://github.com/Fake-Coin/FAKit-Core
+	branch = gofakit
