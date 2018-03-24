@@ -39,6 +39,10 @@ func (a *app) run(keyPhrase string) {
 	a.peerMgr = InitPM(a.wallet)
 	go a.peerMgr.Connect()
 
+	a.view.Dispatch(func() {
+		a.view.Eval(fmt.Sprintf("app.address = %q", a.wallet.ReceiveAddress()))
+	})
+
 	for range time.NewTicker(500 * time.Millisecond).C {
 		p := a.peerMgr.Progress()
 		a.updateProgress(p)
